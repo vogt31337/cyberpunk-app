@@ -1,0 +1,7 @@
+{
+  "name": "cp77",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
