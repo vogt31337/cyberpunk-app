@@ -1,0 +1,60 @@
+.bulletCard {
+    /*padding: 0.8rem;*/
+    border-radius: 10px;
+    margin: 0 0 0 0;
+}
+
+.bulletCard img {
+    /*max-width: 100%;*/
+    display: block;
+    border-radius: 20px;
+    height: 10rem;
+    /*width: 100%;*/
+}
+
+.bulletCard ion-card-title {
+
+    margin-top: 1rem;
+    font-size: 1rem;
+}
+
+.bulletCardImgCol {
+    text-align: center;
+}
+
+.bulletPrice {
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+    margin-top: -0.2rem;
+}
+
+.bulletAddButton {
+
+    color: var(--ion-color-main) !important;
+    margin-top: 0.5rem;
+}
+
+.bulletCardLong img {
+    /*max-width: 100%;*/
+    display: block;
+    border-radius: 20px;
+    height: 5rem !important;
+    /*width: 100%;*/
+}
+
+.bulletCardLongDetails {
+
+    margin-left: 1rem;
+    margin-top: -0.7rem;
+}
+
+.bulletCardLongDetails p {
+
+    font-size: 0.8rem;
+    margin: 0;
+    margin-top: 0.2rem;
+}

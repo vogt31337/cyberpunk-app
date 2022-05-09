@@ -1,0 +1,22 @@
+.profile-avatar {
+
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 2rem;
+  width: 2rem;
+  border-radius: 500px !important;
+}
+  
+.profile-name {
+ 
+  color:#c8c8c8;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  margin-left: 0.5rem;
+}
+  
+.add-fab {
+
+  opacity: 0.7;
+}
+
