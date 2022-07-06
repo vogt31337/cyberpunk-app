@@ -14,30 +14,28 @@ type PostParams = {
     name: string;
     message: string;
     sponsored: boolean;
-    time: string;
+    time: Date;
     views: string;
     online: boolean;
     image?: string;
 }
 
+type Posts = ReadonlyArray<PostParams>
+
 const Feed: React.FC = () => {
 	const { authInfo } = useAuth()!;
 	const [present, dismiss] = useIonToast();
 	const [isInfiniteDisabled, setInfiniteDisabled] = useState(false);
-	const [posts, setPosts] = useState<PostParams[]>([]);
 
-	const { isLoading: isLoadingPosts, refetch: getAllPosts } = useQuery("query-posts", async () =>{
-		return await apiClient.get("/posts");
+	const { isLoading, isError, data, error, refetch: getAllPosts } = useQuery("query-posts", async () =>{
+		const data: Posts = (await apiClient.get("/posts")).data;
+		return data
 	}, {
 		enabled: !!authInfo.id,
 		retry: 3,
 		onSuccess: (res) => {
-			const result = {
-				status: res.status + "-" + res.statusText,
-				headers: res.headers,
-				data: res.data,
-			};
-			setPosts(res.data);
+			const data: Posts = res
+			return data
 		},
 		onError: (err) => {
 			present({
@@ -47,40 +45,18 @@ const Feed: React.FC = () => {
 			});
 		}
 	});
-
-	/*const { isLoading: isLoadingPost, refetch: getPostsById } = useQuery("query-posts-by-id", async () =>{
-		return await apiClient.get("/posts/${getId}");
-	}, {
-		enabled: !!authInfo.id,
-		retry: 1,
-		onSuccess: (res) => {
-			const result = {
-				status: res.status + "-" + res.statusText,
-				headers: res.headers,
-				data: res.data,
-			};
-			setPosts(JSON.parse(res.data));
-		},
-		onError: (err) => {
-			present({
-				buttons: [{ text: 'hide', handler: () => dismiss() }],
-				message: "Error during updating feed.",
-				duration: 3000,
-			});
-		}
-	});*/
 	
 	useIonViewWillEnter(async() => {
 		await getAllPosts();
 	});
 
-	const loadData = (e: any) => {
-		getAllPosts();
-		if (posts.length >= 1000) {
-			setInfiniteDisabled(true);
-		  }	
+	const loadData = (ev: any) => {
 		setTimeout(() => {
-			e.target.complete();
+			getAllPosts();
+			ev.target.complete();
+			if (data && data.length >= 1000) {
+				setInfiniteDisabled(true);
+			}	
 		}, 500);
 	};
 
@@ -108,7 +84,7 @@ const Feed: React.FC = () => {
 			<IonContent fullscreen>
 				<div className={ styles.topHeader }></div>
 
-				{ posts.map((post, index) => {
+				{ data && data.map((post, index) => {
 					return <Post post={ post } key={ index } />;
 				})}
 

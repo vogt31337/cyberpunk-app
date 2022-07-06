@@ -92,6 +92,7 @@ const App: React.FC = () => {
                 <Route exact path="/banking" component={Banking} />
                 <Route exact path="/feed" component={Feed} />
                 <Route path="/profile" component={Profile} />
+                <Route path="/profile/:contact_id" component={Profile} />
                 {/*<Route path="/message/:id" component={ViewMessage} />*/}
                 <Route path="/view-chat/:contact_id" component={ ViewMessageList } />
               </IonRouterOutlet>

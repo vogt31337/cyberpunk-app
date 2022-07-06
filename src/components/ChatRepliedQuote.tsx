@@ -1,4 +1,4 @@
-import { ActionMessageType } from "../pages/messages/ViewMessageList";
+import { MessageItemParams } from "../pages/messages/Chats";
 
 const Quote: React.FC<ChatRepliedQuoteProps> = ({ 
     message: message,
@@ -13,9 +13,9 @@ const Quote: React.FC<ChatRepliedQuoteProps> = ({
 
 interface ChatRepliedQuoteProps {
     //Message: {id: string, date: Date, sent: boolean, starred: boolean, reply: boolean},
-    message: ActionMessageType,
+    message: MessageItemParams,
     contact: {name: string},
-    repliedMessage: ActionMessageType,
+    repliedMessage: MessageItemParams,
 }
 
 const ChatRepliedQuote: React.FC<ChatRepliedQuoteProps> = ({ message: message, contact: contact, repliedMessage }) => {

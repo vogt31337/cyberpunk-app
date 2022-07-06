@@ -1,3 +1,9 @@
+/* 
+ * Component to show banking stuff:
+ * Starts with a qrcode of your ID at the top
+ * A list of all your transactions
+ * A "plus" button to send money somewhere.
+ */
 import { 
   IonContent, 
   IonHeader, 
@@ -10,7 +16,6 @@ import {
   IonLabel,
   IonRow,
   IonCol,
-  IonButton,
   IonCardSubtitle,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
@@ -22,63 +27,57 @@ import {
 } from '@ionic/react';
 import './Banking.css';
 import QRCode from "react-qr-code";
+import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner';
 import { useState } from 'react';
-import { add, share, addOutline, arrowDown, logoUsd, download } from 'ionicons/icons';
+import { add, share, logoUsd, download } from 'ionicons/icons';
 import { useQuery } from "react-query";
+
+import { useAuth } from "../auth/authContext";
 import apiClient from "../../http-common";
 
+type BankingEntry = {
+  id: number
+  name: string
+  reason: string
+  amount: number
+  date: Date
+}
+
+type Bankings = ReadonlyArray<BankingEntry>
+
 const Banking: React.FC = () => {
-  const [data, setData] = useState<string[]>([]);
+  // useAuth provides context and information about the user, is required.
+  const { authInfo } = useAuth()!;
+
+  // state holding is infinite scrolling is enabled
   const [isInfiniteDisabled, setInfiniteDisabled] = useState(false);
-  const [searchText, setSearchText] = useState('');
 
-  const formatResponse = (res) => {
-    return JSON.stringify(res, null, 2);
-  };
-
-  const { isLoading: isLoadingPosts, refetch: getAllBanking } = useQuery("query-bank", async () =>{
-		return await apiClient.get("/banking");
-	}, {
-		enabled: !!authInfo.id,
-		retry: 3,
+  // react-query to synchronize with server state
+  const { isLoading, isError, data, error, refetch: getAllBanking } = useQuery("query-bank", async () => {
+		const data: Bankings = (await apiClient.get("/banking")).data;
+    return data
+	}, 
+  {
+		enabled: !!authInfo.id, // only fetch if authenticated
+		retry: 3,               // retry at max 3 times, not infinte
 		onSuccess: (res) => {
-			const result = {
-				status: res.status + "-" + res.statusText,
-				headers: res.headers,
-				data: res.data,
-			};
-			setData(res.data);
+      const data: Bankings = res
+			return data;
 		},
-		onError: (err) => {
+		/*onError: (err) => {
 			present({
 				buttons: [{ text: 'hide', handler: () => dismiss() }],
 				message: "Error during updating feed.",
 				duration: 3000,
 			});
-		}
+		}*/
 	});
 
-
-  const pushData = () => {
-    const max = data.length + 20;
-    const min = max - 20;
-    const newData = [];
-    for (let i = min; i < max; i++) {
-      newData.push('Item' + i);
-    }
-
-    setData([
-      ...data,
-      ...newData
-    ]);
-  }
-  
   const loadData = (ev: any) => {
     setTimeout(() => {
-      pushData();
-      console.log('Loaded data');
+      getAllBanking();
       ev.target.complete();
-      if (data.length == 1000) {
+      if (data && data.length == 1000) {
         setInfiniteDisabled(true);
       }
     }, 500);
@@ -88,14 +87,15 @@ const Banking: React.FC = () => {
     var formatter = new Intl.NumberFormat('en-GB', {
       // style: 'currency',
       currency: 'USD',
-      minimumFractionDigits: 2
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     });
   
     return formatter.format(balance);
   }
 
   useIonViewWillEnter(() => {
-    pushData();
+    getAllBanking();
   });
 
   return (
@@ -106,24 +106,19 @@ const Banking: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        {/*<IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Banking</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-  <ExploreContainer name="Banking page" />*/}
         <IonGrid>
           <IonRow className="ion-text-center">
             <IonCol size="12">
               <IonCardSubtitle  id={ `slide__balance` } color="medium">
-                <h3>Guthaben:&nbsp;{ formatBalance(-100.0) }&nbsp;<span>$</span></h3>
+                {/* Next line is working with a mapping of all data items to their amount and then reducing it into a number to be outputted */}
+                {(data && (<h3>Guthaben:&nbsp;{ formatBalance(data.map(item => item.amount).reduce((acc, cur) => acc + cur)) }&nbsp;<span>$</span></h3>))}
               </IonCardSubtitle>
             </IonCol>
           </IonRow>
 
           <IonRow className="ion-justify-content-center ion-text-center">
             <IonCol size="10">
-              <QRCode value="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"/>
+              <QRCode value={authInfo.user + ":" + authInfo.id.toString()}/>
             </IonCol>
           </IonRow>
 
@@ -135,15 +130,15 @@ const Banking: React.FC = () => {
         </IonGrid>
 
         <IonList>
-          {data.map((item, index) => {
+          {data && data.map((item, index) => {
             return (
               <IonItem key={index}>
                 <IonIcon icon={logoUsd} slot="start"/>
                 <IonLabel>
-                  <h2>Johnny Silverhand</h2>
-                  <p>{item}</p>
+                  <h2>{item.name}</h2>
+                  <p>{item.date}: {item.reason}</p>
                 </IonLabel>
-                <IonLabel slot="end">-1.000.000 $</IonLabel>
+                <IonLabel slot="end">{formatBalance(item.amount)} $</IonLabel>
               </IonItem>
             )
           })}
@@ -158,7 +153,7 @@ const Banking: React.FC = () => {
               <IonIcon icon={share}/>
             </IonFabButton>
             <IonFabButton>
-              <IonIcon icon={download}/>
+              <IonIcon icon={download} onClick={() => {const data = BarcodeScanner.scan(); console.log(data)}}/>
             </IonFabButton>
           </IonFabList>
         </IonFab>

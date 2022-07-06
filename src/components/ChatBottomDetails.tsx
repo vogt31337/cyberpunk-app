@@ -1,9 +1,9 @@
 import { IonIcon } from "@ionic/react";
 import { checkmarkDone, star } from "ionicons/icons";
-import { ActionMessageType } from "../pages/messages/ViewMessageList";
+import { MessageItemParams } from "../pages/messages/Chats";
 
 interface ChatBottomDetailsProps {
-    message: ActionMessageType,
+    message: MessageItemParams,
 }
 
 const ChatBottomDetails: React.FC<ChatBottomDetailsProps> = ({ message: message }) => (

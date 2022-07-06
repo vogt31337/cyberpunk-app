@@ -1,6 +1,5 @@
 import { 
   IonButton, 
-  IonButtons, 
   IonCard, 
   IonCardContent, 
   IonCardHeader, 
@@ -20,15 +19,48 @@ import {
   IonFabButton,
   IonFabList
 } from '@ionic/react';
-import {arrowForward, bookmarkOutline, chatboxEllipsesOutline, heart, imageOutline, personAddOutline, search, settingsOutline, personOutline, logOutOutline } from "ionicons/icons";
+import {bookmarkOutline, chatboxEllipsesOutline, imageOutline, personAddOutline, search, settingsOutline, personOutline, logOutOutline } from "ionicons/icons";
 
 //import './Profile.css';
 import styles from "./Profile.module.scss";
-import { useAuth } from "../auth/authContext";
+import { useAuth, UserProfileInterface } from "../auth/authContext";
+import apiClient from "../../http-common";
+import { useParams } from "react-router";
+import { useQuery } from "react-query";
+
+type ContactParams = {
+  contact_id: string|any;
+}
 
 const Profile: React.FC = () => {
   const { authInfo, logOut } = useAuth()!;
-  console.log(authInfo);
+  
+  const params = useParams<ContactParams>();
+
+  var contact_id = authInfo.user;
+  if (params.contact_id) {
+    contact_id = params.contact_id;
+  }
+
+  const { isLoading, isError, data, error } = useQuery("query-profile-" + contact_id , async () => {
+    const data: UserProfileInterface = (await apiClient.get("/profile/" + contact_id)).data;
+    return data
+  }, 
+  {
+    enabled: !!authInfo.id, // only fetch if authenticated
+    retry: 3,               // retry at max 3 times, not infinte
+    onSuccess: (res) => {
+      const data: UserProfileInterface = res
+      return data;
+    },
+  });
+  
+  var profile = authInfo
+  if (data) {
+    profile = data;
+  }
+
+  console.log(profile);
   return (
       <IonPage className={ styles.home }>
         <IonHeader>
@@ -50,14 +82,14 @@ const Profile: React.FC = () => {
   
                     <IonRow>
                       <IonCol size="4">
-                        <img src={ authInfo.image } alt="avatar" className={ styles.avatar } />
+                        <img src={ profile.image } alt="avatar" className={ styles.avatar } />
                       </IonCol>
   
                       <IonCol size="8">
                         <IonRow className={ styles.profileInfo }>
                           <IonCol size="12">
                             <IonText color="dark" className={ styles.profileName }>
-                              <p>{ authInfo.user }</p>
+                              <p>{ profile.user }</p>
                               {/*<p>Alan Montgomery</p>*/}
                             </IonText>
                             <IonText color="medium">
@@ -117,7 +149,7 @@ const Profile: React.FC = () => {
                   </IonCardHeader>
                   <IonCardContent>
                     <IonText>
-                      <p>{ authInfo.status }</p>
+                      <p>{ profile.status }</p>
                     </IonText>
                   </IonCardContent>
                 </IonCard>
@@ -136,7 +168,7 @@ const Profile: React.FC = () => {
                   </IonCardHeader>
                   <IonCardContent>
                     <IonText>
-                      <p>{ authInfo.about_me }</p>
+                      <p>{ profile.about_me }</p>
                     </IonText>
                   </IonCardContent>
                 </IonCard>
@@ -190,8 +222,8 @@ const Profile: React.FC = () => {
             <IonFabButton>
               <IonIcon icon={search}/>
             </IonFabButton>
-            <IonFabButton>
-              <IonIcon icon={heart}/>
+            <IonFabButton routerLink={ `/profile` }>
+              <IonIcon icon={personOutline}/>
             </IonFabButton>
           </IonFabList>
         </IonFab>

@@ -24,59 +24,84 @@ import { SetStateAction, useRef } from "react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
-import ChatStore from "./store/ChatStore";
-import ContactStore from "./store/ContactStore";
-import { getNotificationCount, markAllAsRead, sendChatMessage, starChatMessage } from "./store/ChatStore";
-import { getChat, getChats, getContact } from "./store/Selectors";
+import { useQuery } from "react-query";
+import { useAuth } from "../auth/authContext";
+import apiClient from "../../http-common";
 
 import { useLongPress } from 'react-use';
 import ReplyTo, { ReplyToProps } from "../../components/ReplyTo";
 import ChatBottomDetails from "../../components/ChatBottomDetails";
 import ChatRepliedQuote from "../../components/ChatRepliedQuote";
-// import { useCamera } from "../hooks/useCamera";
-// import { useGallery } from "../hooks/useGallery";
 import { GestureConfig, GestureDetail, TextareaChangeEventDetail } from "@ionic/core";
 import "./ViewMessageList.css"
+import { ContactsParams, ContactParams } from "./ChatItem";
+import { MessageItemParams, ChatParams } from "./Chats";
 
 export type MessageListParams = {
     contact_id: string;
-}
-
-export type ActionMessageType = {
-    starred: boolean;
-    id: number;
-    received: boolean;
-    preview: string;
-    sent: boolean;
-    date: Date;
 }
 
 export type ReplyToMessageType = {
     id: number;
 }
 
+type ChatsByContactParams = Array<MessageItemParams>;
+
 const ViewMessageList: React.FC = () => {
-
     const params = useParams<MessageListParams>();
-    console.log(params);
-    //  Global State
-    const chat = ChatStore.useState(getChat(parseInt(params.contact_id)));
-    const chats = ChatStore.useState(getChats);
-    const contact = ContactStore.useState(getContact(parseInt(params.contact_id)));
-    const notificationCount = getNotificationCount(chats);
+    const { authInfo } = useAuth()!;
+    
+    // react-query to synchronize with server state
+    const { data: contacts, refetch: getAllContacts } = useQuery("query-contacts", async () => {
+        const data: ContactsParams = (await apiClient.get("/contacts")).data;
+    return data
+    }, {
+        enabled: !!authInfo.id, // only fetch if authenticated
+        retry: 3,               // retry at max 3 times, not infinte
+        onSuccess: (res) => {
+        const data: ContactsParams = res
+            return data;
+        },
+    });
+    
+    var contact: ContactParams = {
+        id: -1,
+        name: "Johnny Silverhand",
+        avatar: "http://cyberpunk2077-larp.de/images/logos/Samurai_Logo.webp"
+    }
 
-    // const { takePhoto } = useCamera();
-    // const { prompt } = useGallery();
+    if (contacts) {
+        contact = contacts.filter((contact: ContactParams) => contact.id.toString() === params.contact_id)[0];
+    }
+
+	const { data: chats, refetch: getAllChats } = useQuery("query-chats-" + params.contact_id, async () => {
+		const data: ChatsByContactParams = (await apiClient.get("/chats/" + params.contact_id)).data;
+		return data
+	}, {
+		enabled: !!authInfo.id, // only fetch if authenticated
+		retry: 3,               // retry at max 3 times, not infinte
+		onSuccess: (res) => {
+		const data: ChatsByContactParams = res
+			return data;
+		},
+	});
+
+    let notificationCount = 0;
+    if (chats) {
+        chats.map(item => item.read).forEach(read => {
+            if (read) {notificationCount++;}
+        })
+    }
 
     //  Local state
     const [ message, setMessage ] = useState("");
     const [ showSendButton, setShowSendButton ] = useState(false);
     //const [ replyToMessage, setReplyToMessage ] = useState<ReplyToMessageType>(null);
-    const [ replyToMessage, setReplyToMessage ] = useState<ActionMessageType>();
+    const [ replyToMessage, setReplyToMessage ] = useState<MessageItemParams>();
     const [ messageSent, setMessageSent ] = useState(false);
 
     const [ showActionSheet, setShowActionSheet ] = useState(false);
-    const [ actionMessage, setActionMessage ] = useState<ActionMessageType|undefined>();
+    const [ actionMessage, setActionMessage ] = useState<MessageItemParams|undefined>();
 
     const [ showToast, setShowToast ] = useState(false);
     const [ toastMessage, setToastMessage ] = useState("");
@@ -165,13 +190,13 @@ const ViewMessageList: React.FC = () => {
 
     //  Long press callback
     const onLongPress = (e: any) => {
-
         const elementID = e.target.id;
         const chatMessageID = elementID.includes("chatText") ? parseInt(elementID.replace("chatText_", "")) : elementID.includes("chatTime") ? parseInt(elementID.replace("chatTime_", "")) : parseInt(elementID.replace("chatBubble_", ""));
 
-        const chatMessage = chat.filter((message: ActionMessageType) => message.id === chatMessageID)[0];
-    
-        setActionMessage(chatMessage);
+        if (chats) {
+            const chatMessage = chats.filter((message: MessageItemParams) => message.id === chatMessageID)[0];
+            setActionMessage(chatMessage);
+        }
         setShowActionSheet(true);
     };
 
@@ -181,7 +206,7 @@ const ViewMessageList: React.FC = () => {
         delay: 2000,
     });
 
-    const showReplyToMessage = async (message: ActionMessageType) => {
+    const showReplyToMessage = async (message: MessageItemParams) => {
 
             //  Activate reply-to functionality
             setReplyToMessage(message);
@@ -189,7 +214,7 @@ const ViewMessageList: React.FC = () => {
             contentRef.current.scrollToBottom(300);
     }
 
-    const checkBubble = (bubble: any, message: ActionMessageType, event: any) => {
+    const checkBubble = (bubble: any, message: MessageItemParams, event: any) => {
 
         if (event.deltaX >= 120) {
 
@@ -214,7 +239,7 @@ const ViewMessageList: React.FC = () => {
 
     const setSwipeEvents = () => {
 
-        chat.forEach((message: ActionMessageType, index: number) => {
+        chats && chats.forEach((message: MessageItemParams, index: number) => {
 
             if (!message.sent) {
                 
@@ -316,7 +341,7 @@ const ViewMessageList: React.FC = () => {
         replyToAnimationRef,
         ReplyMessage: replyToMessage!,
         setReplyToMessage,
-        Contact: contact.name,
+        ContactName: contact.name,
         messageSent
     };
 
@@ -354,9 +379,9 @@ const ViewMessageList: React.FC = () => {
             {/*<IonContent id="main-chat-content" ref={ contentRef }>*/}
             <IonContent fullscreen ref={ contentRef }>
 
-                { chat.map((message: ActionMessageType, index: number) => {
+                { chats && chats.map((message: MessageItemParams, index: number) => {
 
-                    const repliedMessage = chat.filter((subMessage: ActionMessageType) => subMessage.id === /*message.replyID PROPABLY ERROR HERE! TODO! */message.id)[0];
+                    const repliedMessage = chats.filter((subMessage: MessageItemParams) => subMessage.id === /*message.replyID PROPABLY ERROR HERE! TODO! */message.id)[0];
 
                     return (
                         <div ref={ ref => swiperRefs.current[index] = ref } 

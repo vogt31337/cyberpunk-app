@@ -1,5 +1,6 @@
 import json
 from flask import Flask, jsonify, request
+import datetime
 
 app = Flask(__name__)
 @app.route('/')
@@ -8,9 +9,22 @@ def index():
 
 @app.route('/api/banking')
 def getBanking():
-    return jsonify([{
-        
-    }])
+    return jsonify([
+        {
+            "id": 0,
+            "name": "Johnny Silverhand",
+            "reason": "Yo're a cheap ass",
+            "amount": 10000.12345,
+            "date": datetime.datetime.now()
+        },
+        {
+            "id": 0,
+            "name": "Johnny Silverhand",
+            "reason": "Again?",
+            "amount": 10000.12345,
+            "date": datetime.datetime.now()
+        }
+    ])
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -21,13 +35,29 @@ def login():
         "initialized": True,
         "loggedIn": True,
         "user": record['user'], 
-        "id": "-1",
+        "id": "12345",
         "last_login": "Yesterday",
         "token": record['password'],
         "status": "Party hard!",
         "about_me": "Like to party hard.",
         "image": "http://cyberpunk2077-larp.de/images/logos/Samurai_Logo.webp",
       }])
+
+@app.route('/api/profile/<id>')
+def profile(id):
+    print("Request profile for: " + id)
+    return jsonify({
+        "initialized": True,
+        "loggedIn": True,
+        "user": id,
+        "id": "12345",
+        "last_login": "Yesterday",
+        "token": "",
+        "status": "Party hard!",
+        "about_me": "Like to party hard.",
+        "image": "http://cyberpunk2077-larp.de/images/logos/Samurai_Logo.webp",
+      })
+
 
 @app.route('/api/posts')
 def posts():
@@ -36,7 +66,7 @@ def posts():
             'id': 0,
             'name': "Max Lynch",
             'sponsored': False,
-            'time': "12 m",
+            'time': datetime.datetime.now(),
             'avatar': "https://pbs.twimg.com/profile_images/1318970727173885953/bln98FNj_400x400.jpg",
             'message': "Join a global community of web native developers!",
             'views': "",
@@ -47,7 +77,7 @@ def posts():
             'name': "Ben Sperry",
             'sponsored': True,
             'image': "https://ionicons.com/assets/img/meta/ionicons-og.png",
-            'time': "1 h",
+            'time': datetime.datetime.now(),
             'avatar': "https://pbs.twimg.com/profile_images/1328390491126308864/jHHgl5Dm_400x400.jpg",
             'message': "Check out all the cool IonIcons used on this IonicBook app!",
             'views': "",
@@ -57,12 +87,270 @@ def posts():
             'id': 2,
             'name': "Matt Netkow",
             'sponsored': False,
-            'time': "2 h",
+            'time': datetime.datetime.now(),
             'avatar': "https://pbs.twimg.com/profile_images/1323383930150621187/GKc0nVzi_400x400.jpg",
             'message': "I help web developers build cross-platform Web Native apps.",
             'views': "",
             'online': False
         }
+    ])
+
+@app.route('/api/chats')
+def chats():
+    return jsonify([
+		{
+			'id': 1,
+			'contact_id': 1,
+			'chats': [
+
+				{
+					'id': 1,
+					'preview': "This is a test whatsapp message inside the whatsapp clone app",
+					'received': True,
+					'sent': False,
+					'date': "20:05",
+					'read': False,
+					'starred': False
+				},
+				{
+					'id': 2,
+					'preview': "This is a test whatsapp message inside the whatsapp clone app",
+					'received': False,
+					'sent': True,
+					'date': "20:05",
+					'read': False,
+					'starred': False
+				},
+				{
+					'id': 3,
+					'preview': "This is a test whatsapp message inside the whatsapp clone app",
+					'received': True,
+					'sent': False,
+					'date': "20:05",
+					'read': False,
+					'starred': False
+				},
+				{
+					'id': 4,
+					'preview': "This is a test whatsapp message inside the whatsapp clone app",
+					'received': False,
+					'sent': True,
+					'date': "20:05",
+					'read': False,
+					'starred': False
+				},
+				{
+					'id': 5,
+					'preview': "This is a test whatsapp message inside the whatsapp clone app",
+					'received': True,
+					'sent': False,
+					'date': "20:05",
+					'read': False,
+					'starred': False
+				},
+				{
+					'id': 6,
+					'preview': "This is a test whatsapp message inside the whatsapp clone app",
+					'received': False,
+					'sent': True,
+					'date': "20:05",
+					'read': False,
+					'starred': False
+				},
+				{
+					'id': 7,
+					'preview': "This is a test whatsapp message inside the whatsapp clone app",
+					'received': True,
+					'sent': False,
+					'date': "20:05",
+					'read': False,
+					'starred': False
+				},
+				{
+					'id': 8,
+					'preview': "This is a test whatsapp message inside the whatsapp clone app",
+					'received': False,
+					'sent': True,
+					'date': "20:05",
+					'read': False,
+					'starred': False
+				},
+				{
+					'id': 9,
+					'preview': "This is a test whatsapp message inside the whatsapp clone app",
+					'received': True,
+					'sent': False,
+					'date': "20:05",
+					'read': False,
+					'starred': False
+				},
+				{
+					'id': 10,
+					'preview': "This is a test whatsapp message inside the whatsapp clone app",
+					'received': False,
+					'sent': True,
+					'date': "20:05",
+					'read': False,
+					'starred': False
+				},
+				{
+					'id': 11,
+					'preview': "This is a test whatsapp message inside the whatsapp clone app",
+					'received': True,
+					'sent': False,
+					'date': "20:05",
+					'read': False,
+					'starred': False
+				},
+				{
+					'id': 12,
+					'preview': "This is a test whatsapp message inside the whatsapp clone app",
+					'received': False,
+					'sent': True,
+					'date': "20:05",
+					'read': False,
+					'starred': False
+				},
+				{
+					'id': 13,
+					'preview': "This is a test whatsapp message inside the whatsapp clone app",
+					'received': True,
+					'sent': False,
+					'date': "20:05",
+					'read': False,
+					'starred': False
+				},
+				{
+					'id': 14,
+					'preview': "This is a test whatsapp message inside the whatsapp clone app",
+					'received': False,
+					'sent': True,
+					'date': "20:10",
+					'read': False,
+					'starred': False
+				}
+			]
+		},
+		{
+			'id': 2,
+			'contact_id': 2,
+			'chats': [
+				
+				{
+					'id': 1,
+					'preview': "Excited for the Ioniconf 2021! The 23rd can't come quick enough",
+					'received': False,
+					'sent': True,
+					'date': "Yesterday",
+					'read': True,
+					'starred': False
+				}
+			]
+		},
+		{
+			'id': 3,
+			'contact_id': 3,
+			'chats': [
+
+				{
+					'id': 1,
+					'preview': "Excited for the Ioniconf 2021! The 23rd can't come quick enough",
+					'received': False,
+					'sent': True,
+					'date': "Saturday",
+					'read': True,
+					'starred': False
+				}
+			]
+		},
+		{
+			'id': 4,
+			'contact_id': 4,
+			'chats': [
+
+				{
+					'id': 1,
+					'preview': "Hey Alan, this is a test whatsapp message",
+					'received': True,
+					'sent': False,
+					'date': "Friday",
+					'read': False,
+					'starred': False
+				}
+			]
+		},
+		{
+			'id': 5,
+			'contact_id': 5,
+			'chats': [
+
+				{
+					'id': 1,
+					'preview': "Hey Alan, this is a test whatsapp message",
+					'received': True,
+					'sent': False,
+					'date': "Thursday",
+					'read': False,
+					'starred': False
+				}
+			]
+		},
+    ])
+
+# Return known contacts to user
+@app.route('/api/contacts')
+def contacts():
+    return jsonify([
+        {
+            'id': 1,
+			'name': "Amy Sister",
+			'avatar': "/assets/amy.jpeg"
+		},
+		{
+            'id': 2,
+			'name': "Max Lynch",
+			'avatar': "/assets/max.jpeg"
+		},
+        {
+            'id': 3,
+			'name': "Mike Hartington",
+			'avatar': "/assets/mike.jpeg"
+		},
+        {
+            'id': 4,
+			'name': "Henk Jurriens",
+			'avatar': "/assets/henk.jpeg"
+		},
+        {
+            'id': 5,
+			'name': "Simon Grimm",
+			'avatar': "/assets/simon.jpeg"
+		},
+        {
+            'id': 6,
+			'name': "Josh Morony",
+			'avatar': "/assets/josh.jpeg"
+		},
+        {
+            'id': 7,
+			'name': "Elon Musk",
+			'avatar': "/assets/elon.jpeg"
+		},
+        {
+            'id': 8,
+			'name': "Bill Gates",
+			'avatar': "/assets/bill.jpeg"
+		},
+        {
+            'id': 9,
+			'name': "Mark Zuckerberg",
+			'avatar': "/assets/mark.jpeg"
+		},
+		{
+            'id': 10,
+			'name': "Ionic Framework (not)",
+			'avatar': "/assets/ionic.png"
+		}
     ])
 
 @app.route('/api/messages')

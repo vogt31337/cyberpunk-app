@@ -1,7 +1,7 @@
 import React from "react";
 import apiClient from "../../http-common";
 
-type UserDataInterface = { 
+export type UserProfileInterface = { 
     initialized: boolean; 
     loggedIn: boolean; 
     user: string; 
@@ -14,7 +14,7 @@ type UserDataInterface = {
 };
 
 type MyContextInterface = {
-  authInfo: UserDataInterface;
+  authInfo: UserProfileInterface;
   initialize: () => Promise<boolean>;
   logOut: () => Promise<boolean>;
   logIn: (user: string, password: string) => Promise<boolean>;
@@ -32,7 +32,7 @@ type Props = {
 };
 export const AuthProvider: React.FC = (props: any) => {
   // the reactive values
-  const [authInfo, setAuthInfo] = React.useState<UserDataInterface>();
+  const [authInfo, setAuthInfo] = React.useState<UserProfileInterface>();
 
   const logOut = () => {
     return new Promise((resolve) => {

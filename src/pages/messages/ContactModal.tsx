@@ -1,12 +1,26 @@
 import { IonButton, IonButtons, IonContent, IonHeader, IonItem, IonLabel, IonList, IonTitle, IonToolbar } from "@ionic/react";
-import ContactStore from "./store/ContactStore";
-import { getContacts } from "./store/Selectors";
+import { useQuery } from "react-query";
+import { useAuth } from "../auth/authContext";
+import apiClient from "../../http-common";
+import { ContactsParams, ContactParams } from "./ChatItem";
 
 import "./ContactModal.scss";
 
 const ContactModal: React.FC<any> = ({ close: any }) => {
+    const { authInfo } = useAuth()!;
 
-    const contacts = ContactStore.useState(getContacts);
+    //const contacts = ContactStore.useState(getContacts);
+    const { data: contacts, refetch: getAllContacts } = useQuery("query-contacts", async () => {
+        const data: ContactsParams = (await apiClient.get("/contacts")).data;
+    return data
+    }, {
+        enabled: !!authInfo.id, // only fetch if authenticated
+        retry: 3,               // retry at max 3 times, not infinte
+        onSuccess: (res) => {
+        const data: ContactsParams = res
+            return data;
+        },
+    });
 
     return (
         <div style={{ height: "100%" }}>
@@ -21,7 +35,7 @@ const ContactModal: React.FC<any> = ({ close: any }) => {
 
             <IonContent>
                 <IonList>
-                    { contacts.map((contact: any) => {
+                    { contacts && contacts.map((contact: ContactParams) => {
 
                         return (
 

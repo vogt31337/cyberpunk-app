@@ -8,7 +8,7 @@ type PostParams = {
     name: string;
     message: string;
     sponsored: boolean;
-    time: string;
+    time: Date;
     views: string;
     online: boolean;
     image?: string;
@@ -21,7 +21,7 @@ const Post = (props: {post: PostParams}) => {
             <IonRow className="ion-no-padding ion-no-margin post">
                 <IonCol size="12" className="ion-no-padding ion-no-margin">
                     <div className="post-container">
-                        <IonItem lines="none" className="post-header ion-no-margin ion-no-padding">
+                        <IonItem lines="none" className="post-header ion-no-margin ion-no-padding" routerLink={`/profile/${props.post.name}`}>
                             <IonAvatar slot="start" className="ion-no-padding ion-no-margin">
                                 <IonImg src={ props.post.avatar } />
                             </IonAvatar>

@@ -2,18 +2,18 @@ import { CreateAnimation, IonButton, IonCol, IonIcon, IonLabel, IonRow } from "@
 import { closeCircleOutline } from "ionicons/icons";
 import { useEffect } from "react";
 import { useState } from "react";
-import { ActionMessageType } from "../pages/messages/ViewMessageList";
+import { MessageItemParams } from "../pages/messages/Chats";
 
 export interface ReplyToProps {
-    Contact: {name: string},
-    ReplyMessage: ActionMessageType,
+    ContactName: string,
+    ReplyMessage: MessageItemParams,
     replyToAnimationRef: any,
     setReplyToMessage: any,
     messageSent: any,
 }
 
 
-const ReplyTo: React.FC<ReplyToProps> = ({ Contact: contact, ReplyMessage: replyToMessage, 
+const ReplyTo: React.FC<ReplyToProps> = ({ ContactName: contact, ReplyMessage: replyToMessage, 
     replyToAnimationRef, setReplyToMessage, messageSent }) => {
 
     const [ cancellingReplyTo, setCancellingReplyTo ] = useState(false);
