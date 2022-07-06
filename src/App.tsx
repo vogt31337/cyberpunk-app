@@ -12,11 +12,9 @@ import {
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { hardwareChip, logoUsd, fileTray, wallet, newspaper, chatbox } from 'ionicons/icons';
-//import Mail from './pages/Mail';
-import Banking from './pages/Banking';
-//import Bulletin from './pages/Bulletin';
+import Banking from './pages/banking/Banking';
 import Feed from './pages/feed/Feed';
-import Profile from './pages/Profile';
+import Profile from './pages/profile/Profile';
 import Chats from './pages/messages/Chats';
 import ViewMessageList from './pages/messages/ViewMessageList';
 import { LoginPage } from './pages/auth/LoginPage';
@@ -90,20 +88,14 @@ const App: React.FC = () => {
             <IonTabs>
               <IonRouterOutlet>
                 <Redirect from="/" to="/profile" exact />
-                {/*<Route exact path="/mail" component={Mail} />*/}
                 <Route exact path="/chats" component={Chats} />
                 <Route exact path="/banking" component={Banking} />
                 <Route exact path="/feed" component={Feed} />
-                {/*<Route exact path="/bulletin" component={Bulletin} />*/}
                 <Route path="/profile" component={Profile} />
                 {/*<Route path="/message/:id" component={ViewMessage} />*/}
                 <Route path="/view-chat/:contact_id" component={ ViewMessageList } />
               </IonRouterOutlet>
               <IonTabBar slot="bottom">
-                {/*<IonTabButton tab="mail" href="/mail">
-                  <IonIcon icon={fileTray} />
-                  <IonLabel>Mail</IonLabel>
-                </IonTabButton>*/}
                 <IonTabButton tab="Banking" href="/banking">
                   <IonIcon icon={wallet} />
                   <IonLabel>Banking</IonLabel>
@@ -112,10 +104,6 @@ const App: React.FC = () => {
                   <IonIcon icon={chatbox} />
                   <IonLabel>Chats</IonLabel>
                 </IonTabButton>
-                {/*<IonTabButton tab="Bulletin" href="/bulletin">
-                  <IonIcon icon={newspaper} />
-                  <IonLabel>Bulletin</IonLabel>
-                </IonTabButton>*/}
                 <IonTabButton tab="Feed" href="/feed">
                   <IonIcon icon={newspaper} />
                   <IonLabel>Feed</IonLabel>

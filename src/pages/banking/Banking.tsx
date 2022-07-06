@@ -25,7 +25,7 @@ import QRCode from "react-qr-code";
 import { useState } from 'react';
 import { add, share, addOutline, arrowDown, logoUsd, download } from 'ionicons/icons';
 import { useQuery } from "react-query";
-import apiClient from "../http-common";
+import apiClient from "../../http-common";
 
 const Banking: React.FC = () => {
   const [data, setData] = useState<string[]>([]);

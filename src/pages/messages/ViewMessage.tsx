@@ -22,8 +22,8 @@ import { useHistory, useParams } from 'react-router';
 import { useState } from 'react';
 import './ViewMessage.css';
 
-import { getObject, setObject, removeObject } from '../data/IonicStorage';
-import { getContacts } from '../data/contacts';
+import { getObject, setObject, removeObject } from '../../data/IonicStorage';
+import { getContacts } from '../../data/contacts';
 
 type ViewMessageParams = {
     id?: string;

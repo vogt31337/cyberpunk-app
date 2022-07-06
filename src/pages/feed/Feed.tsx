@@ -4,9 +4,6 @@ import Post from './Post';
 import styles from "./Feed.module.scss";
 import { useState } from 'react';
 
-//import { get, set } from '../../data/IonicStorage';
-//import { getPosts } from '../../data/posts';
-
 import { useAuth } from "../auth/authContext";
 import { useQuery } from "react-query";
 import apiClient from "../../http-common";

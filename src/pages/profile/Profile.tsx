@@ -24,7 +24,7 @@ import {arrowForward, bookmarkOutline, chatboxEllipsesOutline, heart, imageOutli
 
 //import './Profile.css';
 import styles from "./Profile.module.scss";
-import { useAuth } from "./auth/authContext";
+import { useAuth } from "../auth/authContext";
 
 const Profile: React.FC = () => {
   const { authInfo, logOut } = useAuth()!;
