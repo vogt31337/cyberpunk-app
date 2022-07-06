@@ -6,6 +6,12 @@ app = Flask(__name__)
 def index():
     return "Hello World!"
 
+@app.route('/api/banking')
+def getBanking():
+    return jsonify([{
+        
+    }])
+
 @app.route('/api/login', methods=['POST'])
 def login():
     record = json.loads(request.data)

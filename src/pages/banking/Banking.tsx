@@ -24,11 +24,40 @@ import './Banking.css';
 import QRCode from "react-qr-code";
 import { useState } from 'react';
 import { add, share, addOutline, arrowDown, logoUsd, download } from 'ionicons/icons';
+import { useQuery } from "react-query";
+import apiClient from "../http-common";
 
 const Banking: React.FC = () => {
   const [data, setData] = useState<string[]>([]);
   const [isInfiniteDisabled, setInfiniteDisabled] = useState(false);
   const [searchText, setSearchText] = useState('');
+
+  const formatResponse = (res) => {
+    return JSON.stringify(res, null, 2);
+  };
+
+  const { isLoading: isLoadingPosts, refetch: getAllBanking } = useQuery("query-bank", async () =>{
+		return await apiClient.get("/banking");
+	}, {
+		enabled: !!authInfo.id,
+		retry: 3,
+		onSuccess: (res) => {
+			const result = {
+				status: res.status + "-" + res.statusText,
+				headers: res.headers,
+				data: res.data,
+			};
+			setData(res.data);
+		},
+		onError: (err) => {
+			present({
+				buttons: [{ text: 'hide', handler: () => dismiss() }],
+				message: "Error during updating feed.",
+				duration: 3000,
+			});
+		}
+	});
+
 
   const pushData = () => {
     const max = data.length + 20;
@@ -43,6 +72,7 @@ const Banking: React.FC = () => {
       ...newData
     ]);
   }
+  
   const loadData = (ev: any) => {
     setTimeout(() => {
       pushData();

@@ -89,7 +89,7 @@ const App: React.FC = () => {
           <IonReactRouter>
             <IonTabs>
               <IonRouterOutlet>
-                <Redirect from="/" to="/bulletin" exact />
+                <Redirect from="/" to="/profile" exact />
                 {/*<Route exact path="/mail" component={Mail} />*/}
                 <Route exact path="/chats" component={Chats} />
                 <Route exact path="/banking" component={Banking} />

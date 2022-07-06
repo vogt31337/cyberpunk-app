@@ -1,12 +1,22 @@
-import React from 'react';
+//import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
-import reportWebVitals from './reportWebVitals';
+//import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from "./pages/auth/authContext";
 import { QueryClient, QueryClientProvider } from 'react-query'
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // globally default to 20 seconds
+      staleTime: 1000 * 20,
+      // since v4 turned on by default:
+      notifyOnChangeProps: 'tracked',
+    },
+
+  },
+});
 
 ReactDOM.render(
 //  <React.StrictMode>

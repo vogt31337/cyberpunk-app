@@ -1,5 +1,4 @@
 import React from "react";
-import resolve from "resolve";
 import apiClient from "../../http-common";
 
 type UserDataInterface = { 
