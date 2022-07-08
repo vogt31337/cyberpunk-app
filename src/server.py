@@ -1,8 +1,211 @@
 import json
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import datetime
 
 app = Flask(__name__)
+CORS(app)
+
+chats = [
+	{
+		'id': 1,
+		'contact_id': 1,
+		'chats': [
+
+			{
+				'id': 1,
+				'preview': "This is a test whatsapp message inside the whatsapp clone app",
+				'received': True,
+				'sent': False,
+				'date': "20:05",
+				'read': False,
+				'starred': False
+			},
+			{
+				'id': 2,
+				'preview': "This is a test whatsapp message inside the whatsapp clone app",
+				'received': False,
+				'sent': True,
+				'date': "20:05",
+				'read': False,
+				'starred': False
+			},
+			{
+				'id': 3,
+				'preview': "This is a test whatsapp message inside the whatsapp clone app",
+				'received': True,
+				'sent': False,
+				'date': "20:05",
+				'read': False,
+				'starred': False
+			},
+			{
+				'id': 4,
+				'preview': "This is a test whatsapp message inside the whatsapp clone app",
+				'received': False,
+				'sent': True,
+				'date': "20:05",
+				'read': False,
+				'starred': False
+			},
+			{
+				'id': 5,
+				'preview': "This is a test whatsapp message inside the whatsapp clone app",
+				'received': True,
+				'sent': False,
+				'date': "20:05",
+				'read': False,
+				'starred': False
+			},
+			{
+				'id': 6,
+				'preview': "This is a test whatsapp message inside the whatsapp clone app",
+				'received': False,
+				'sent': True,
+				'date': "20:05",
+				'read': False,
+				'starred': False
+			},
+			{
+				'id': 7,
+				'preview': "This is a test whatsapp message inside the whatsapp clone app",
+				'received': True,
+				'sent': False,
+				'date': "20:05",
+				'read': False,
+				'starred': False
+			},
+			{
+				'id': 8,
+				'preview': "This is a test whatsapp message inside the whatsapp clone app",
+				'received': False,
+				'sent': True,
+				'date': "20:05",
+				'read': False,
+				'starred': False
+			},
+			{
+				'id': 9,
+				'preview': "This is a test whatsapp message inside the whatsapp clone app",
+				'received': True,
+				'sent': False,
+				'date': "20:05",
+				'read': False,
+				'starred': False
+			},
+			{
+				'id': 10,
+				'preview': "This is a test whatsapp message inside the whatsapp clone app",
+				'received': False,
+				'sent': True,
+				'date': "20:05",
+				'read': False,
+				'starred': False
+			},
+			{
+				'id': 11,
+				'preview': "This is a test whatsapp message inside the whatsapp clone app",
+				'received': True,
+				'sent': False,
+				'date': "20:05",
+				'read': False,
+				'starred': False
+			},
+			{
+				'id': 12,
+				'preview': "This is a test whatsapp message inside the whatsapp clone app",
+				'received': False,
+				'sent': True,
+				'date': "20:05",
+				'read': False,
+				'starred': False
+			},
+			{
+				'id': 13,
+				'preview': "This is a test whatsapp message inside the whatsapp clone app",
+				'received': True,
+				'sent': False,
+				'date': "20:05",
+				'read': False,
+				'starred': False
+			},
+			{
+				'id': 14,
+				'preview': "This is a test whatsapp message inside the whatsapp clone app",
+				'received': False,
+				'sent': True,
+				'date': "20:10",
+				'read': False,
+				'starred': False
+			}
+		]
+	},
+	{
+		'id': 2,
+		'contact_id': 2,
+		'chats': [
+
+			{
+				'id': 1,
+				'preview': "Excited for the Ioniconf 2021! The 23rd can't come quick enough",
+				'received': False,
+				'sent': True,
+				'date': "Yesterday",
+				'read': True,
+				'starred': False
+			}
+		]
+	},
+	{
+		'id': 3,
+		'contact_id': 3,
+		'chats': [
+
+			{
+				'id': 1,
+				'preview': "Excited for the Ioniconf 2021! The 23rd can't come quick enough",
+				'received': False,
+				'sent': True,
+				'date': "Saturday",
+				'read': True,
+				'starred': False
+			}
+		]
+	},
+	{
+		'id': 4,
+		'contact_id': 4,
+		'chats': [
+
+			{
+				'id': 1,
+				'preview': "Hey Alan, this is a test whatsapp message",
+				'received': True,
+				'sent': False,
+				'date': "Friday",
+				'read': False,
+				'starred': False
+			}
+		]
+	},
+	{
+		'id': 5,
+		'contact_id': 5,
+		'chats': [
+
+			{
+				'id': 1,
+				'preview': "Hey Alan, this is a test whatsapp message",
+				'received': True,
+				'sent': False,
+				'date': "Thursday",
+				'read': False,
+				'starred': False
+			}
+		]
+	},
+]
+
 @app.route('/')
 def index():
     return "Hello World!"
@@ -96,206 +299,43 @@ def posts():
     ])
 
 @app.route('/api/chats')
-def chats():
-    return jsonify([
-		{
-			'id': 1,
-			'contact_id': 1,
-			'chats': [
+def get_all_chats():
+    return jsonify(chats)
 
-				{
-					'id': 1,
-					'preview': "This is a test whatsapp message inside the whatsapp clone app",
-					'received': True,
-					'sent': False,
-					'date': "20:05",
-					'read': False,
-					'starred': False
-				},
-				{
-					'id': 2,
-					'preview': "This is a test whatsapp message inside the whatsapp clone app",
-					'received': False,
-					'sent': True,
-					'date': "20:05",
-					'read': False,
-					'starred': False
-				},
-				{
-					'id': 3,
-					'preview': "This is a test whatsapp message inside the whatsapp clone app",
-					'received': True,
-					'sent': False,
-					'date': "20:05",
-					'read': False,
-					'starred': False
-				},
-				{
-					'id': 4,
-					'preview': "This is a test whatsapp message inside the whatsapp clone app",
-					'received': False,
-					'sent': True,
-					'date': "20:05",
-					'read': False,
-					'starred': False
-				},
-				{
-					'id': 5,
-					'preview': "This is a test whatsapp message inside the whatsapp clone app",
-					'received': True,
-					'sent': False,
-					'date': "20:05",
-					'read': False,
-					'starred': False
-				},
-				{
-					'id': 6,
-					'preview': "This is a test whatsapp message inside the whatsapp clone app",
-					'received': False,
-					'sent': True,
-					'date': "20:05",
-					'read': False,
-					'starred': False
-				},
-				{
-					'id': 7,
-					'preview': "This is a test whatsapp message inside the whatsapp clone app",
-					'received': True,
-					'sent': False,
-					'date': "20:05",
-					'read': False,
-					'starred': False
-				},
-				{
-					'id': 8,
-					'preview': "This is a test whatsapp message inside the whatsapp clone app",
-					'received': False,
-					'sent': True,
-					'date': "20:05",
-					'read': False,
-					'starred': False
-				},
-				{
-					'id': 9,
-					'preview': "This is a test whatsapp message inside the whatsapp clone app",
-					'received': True,
-					'sent': False,
-					'date': "20:05",
-					'read': False,
-					'starred': False
-				},
-				{
-					'id': 10,
-					'preview': "This is a test whatsapp message inside the whatsapp clone app",
-					'received': False,
-					'sent': True,
-					'date': "20:05",
-					'read': False,
-					'starred': False
-				},
-				{
-					'id': 11,
-					'preview': "This is a test whatsapp message inside the whatsapp clone app",
-					'received': True,
-					'sent': False,
-					'date': "20:05",
-					'read': False,
-					'starred': False
-				},
-				{
-					'id': 12,
-					'preview': "This is a test whatsapp message inside the whatsapp clone app",
-					'received': False,
-					'sent': True,
-					'date': "20:05",
-					'read': False,
-					'starred': False
-				},
-				{
-					'id': 13,
-					'preview': "This is a test whatsapp message inside the whatsapp clone app",
-					'received': True,
-					'sent': False,
-					'date': "20:05",
-					'read': False,
-					'starred': False
-				},
-				{
-					'id': 14,
-					'preview': "This is a test whatsapp message inside the whatsapp clone app",
-					'received': False,
-					'sent': True,
-					'date': "20:10",
-					'read': False,
-					'starred': False
-				}
-			]
-		},
-		{
-			'id': 2,
-			'contact_id': 2,
-			'chats': [
-				
-				{
-					'id': 1,
-					'preview': "Excited for the Ioniconf 2021! The 23rd can't come quick enough",
-					'received': False,
-					'sent': True,
-					'date': "Yesterday",
-					'read': True,
-					'starred': False
-				}
-			]
-		},
-		{
-			'id': 3,
-			'contact_id': 3,
-			'chats': [
+@app.route('/api/chats/<id>')
+def get_chat_for_id(id):
+    for chat in chats:
+        if chat['id'] == int(id):
+            return jsonify(chat)
 
+@app.route('/api/chats/mark_read/<id>', methods=['PUT'])
+def mark_chat_read(id):
+    for chat in chats:
+        if chat['id'] == int(id):
+            for message in chat['chats']:
+                message['read'] = True
+            return jsonify(chat)
+
+@app.route('/api/chats/reply/<id>', methods=['POST', 'PUT'])
+def add_new_message_to_chat(id):
+    for chat in chats:
+        if chat['id'] == int(id):
+            # print(request.data)
+            msg = json.loads(request.data)
+            lastid = chat['chats'][-1]['id']
+            chat['chats'].append(
 				{
-					'id': 1,
-					'preview': "Excited for the Ioniconf 2021! The 23rd can't come quick enough",
+					'id': lastid + 1,
+					'preview': msg['message'],
 					'received': False,
-					'sent': True,
-					'date': "Saturday",
-					'read': True,
-					'starred': False
-				}
-			]
-		},
-		{
-			'id': 4,
-			'contact_id': 4,
-			'chats': [
-
-				{
-					'id': 1,
-					'preview': "Hey Alan, this is a test whatsapp message",
-					'received': True,
 					'sent': False,
-					'date': "Friday",
+					'date': datetime.datetime.now(),
 					'read': False,
 					'starred': False
 				}
-			]
-		},
-		{
-			'id': 5,
-			'contact_id': 5,
-			'chats': [
+			)
+            return jsonify(chat)
 
-				{
-					'id': 1,
-					'preview': "Hey Alan, this is a test whatsapp message",
-					'received': True,
-					'sent': False,
-					'date': "Thursday",
-					'read': False,
-					'starred': False
-				}
-			]
-		},
-    ])
 
 # Return known contacts to user
 @app.route('/api/contacts')

@@ -24,7 +24,7 @@ import { SetStateAction, useRef } from "react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
-import { useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useAuth } from "../auth/authContext";
 import apiClient from "../../http-common";
 
@@ -42,7 +42,10 @@ export type MessageListParams = {
 }
 
 export type ReplyToMessageType = {
-    id: number;
+    contact_id: number,
+    message: string, 
+    replyToMessage_id: number | undefined,
+    image: string | null
 }
 
 type ChatsByContactParams = Array<MessageItemParams>;
@@ -75,23 +78,19 @@ const ViewMessageList: React.FC = () => {
     }
 
 	const { data: chats, refetch: getAllChats } = useQuery("query-chats-" + params.contact_id, async () => {
-		const data: ChatsByContactParams = (await apiClient.get("/chats/" + params.contact_id)).data;
+		const data: ChatParams = (await apiClient.get("/chats/" + params.contact_id)).data;
 		return data
 	}, {
 		enabled: !!authInfo.id, // only fetch if authenticated
 		retry: 3,               // retry at max 3 times, not infinte
 		onSuccess: (res) => {
-		const data: ChatsByContactParams = res
+		const data: ChatParams = res
+            data.chats.map(item => item.read).forEach(read => {
+                if (read) {data.notificationCount++;}
+            })
 			return data;
 		},
 	});
-
-    let notificationCount = 0;
-    if (chats) {
-        chats.map(item => item.read).forEach(read => {
-            if (read) {notificationCount++;}
-        })
-    }
 
     //  Local state
     const [ message, setMessage ] = useState("");
@@ -114,12 +113,43 @@ const ViewMessageList: React.FC = () => {
     const sendRef = useRef<any>();
     const replyToAnimationRef = useRef();
 
+
+    const queryClient = useQueryClient()
+
+    const starChatMessage = useMutation((id: number) => 
+        apiClient.put('/chats/star/' + params.contact_id + '/' + id.toString()),
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries(["query-chats-" + params.contact_id])
+            }
+        }
+    )
+
+    const markAllAsRead = useMutation(() => 
+        apiClient.put('/chats/mark_read/' + params.contact_id),
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries(["query-chats-" + params.contact_id])
+            }
+        }
+    )
+
+    // sendChatMessage(params.contact_id, message, replyToMessage, replyToMessage ? replyToMessage.id : -1, image, imagePath);
+    const sendChatMessage = useMutation((reply: ReplyToMessageType) => 
+        apiClient.put('/chats/reply/' + params.contact_id, JSON.stringify(reply)),
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries(["query-chats-" + params.contact_id])
+            }
+        }
+    )
+
     const actionSheetButtons = [
 
         {
             text: (actionMessage && actionMessage.starred) ? "Unstar Message" : "Star Message",
             icon: starOutline,
-            handler: () => starChatMessage(params.contact_id, (actionMessage) ? actionMessage.id: null)
+            handler: () => starChatMessage.mutate((actionMessage) ? actionMessage.id: -1)
         },
         actionMessage && actionMessage.received ? 
         {
@@ -152,8 +182,8 @@ const ViewMessageList: React.FC = () => {
 
         scrollToBottom();
         setupObserver();
-        markAllAsRead(params.contact_id);
-        setSwipeEvents();
+        markAllAsRead.mutate();
+        //setSwipeEvents();
     });
 
     //  For displaying toast messages
@@ -164,7 +194,7 @@ const ViewMessageList: React.FC = () => {
 
     //  Scroll to end of content
     const scrollToBottom = async () => {
-        console.log("scrollToBottom");
+        //console.log("scrollToBottom");
         contentRef.current.scrollToBottom();
     }
 
@@ -194,7 +224,7 @@ const ViewMessageList: React.FC = () => {
         const chatMessageID = elementID.includes("chatText") ? parseInt(elementID.replace("chatText_", "")) : elementID.includes("chatTime") ? parseInt(elementID.replace("chatTime_", "")) : parseInt(elementID.replace("chatBubble_", ""));
 
         if (chats) {
-            const chatMessage = chats.filter((message: MessageItemParams) => message.id === chatMessageID)[0];
+            const chatMessage = chats.chats.filter((message: MessageItemParams) => message.id === chatMessageID)[0];
             setActionMessage(chatMessage);
         }
         setShowActionSheet(true);
@@ -239,7 +269,7 @@ const ViewMessageList: React.FC = () => {
 
     const setSwipeEvents = () => {
 
-        chats && chats.forEach((message: MessageItemParams, index: number) => {
+        chats && chats.chats.forEach((message: MessageItemParams, index: number) => {
 
             if (!message.sent) {
                 
@@ -315,8 +345,14 @@ const ViewMessageList: React.FC = () => {
     const sendMessage = (image = false, imagePath = "") => {
 
         if (message !== "" || image === true) {
-            
-            sendChatMessage(params.contact_id, message, replyToMessage, replyToMessage ? replyToMessage.id : -1, image, imagePath);
+            const reply: ReplyToMessageType = {
+                contact_id: parseInt(params.contact_id),
+                message: message,
+                replyToMessage_id: replyToMessage?.id,
+                image: imagePath
+            }
+            //console.log(reply);
+            sendChatMessage.mutate(reply);
             setMessage("");
         
             setMessageSent(true);
@@ -351,7 +387,7 @@ const ViewMessageList: React.FC = () => {
             <IonHeader>
                 <IonToolbar>
                     <IonButtons slot="start">
-                        <IonBackButton text={ (notificationCount > 0) ? notificationCount.toString() : "" } />
+                        <IonBackButton text={ (chats && chats.notificationCount > 0) ? chats.notificationCount.toString() : "" } />
                     </IonButtons>
                     <IonTitle>
 
@@ -379,9 +415,9 @@ const ViewMessageList: React.FC = () => {
             {/*<IonContent id="main-chat-content" ref={ contentRef }>*/}
             <IonContent fullscreen ref={ contentRef }>
 
-                { chats && chats.map((message: MessageItemParams, index: number) => {
+                { chats && chats.chats.map((message: MessageItemParams, index: number) => {
 
-                    const repliedMessage = chats.filter((subMessage: MessageItemParams) => subMessage.id === /*message.replyID PROPABLY ERROR HERE! TODO! */message.id)[0];
+                    const repliedMessage = chats.chats.filter((subMessage: MessageItemParams) => subMessage.id === /*message.replyID PROPABLY ERROR HERE! TODO! */message.id)[0];
 
                     return (
                         <div ref={ ref => swiperRefs.current[index] = ref } 

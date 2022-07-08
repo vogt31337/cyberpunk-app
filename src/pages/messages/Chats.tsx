@@ -33,6 +33,7 @@ export type ChatParams = {
 	id: number;
 	contact_id: number;
 	chats: Array<MessageItemParams>;
+	notificationCount: number;
 }
 
 export type ChatListParams = Array<ChatParams>

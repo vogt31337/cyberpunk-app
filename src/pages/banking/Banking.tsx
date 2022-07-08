@@ -23,13 +23,18 @@ import {
   IonFabList,
   IonFabButton,
   useIonViewWillEnter,
-  IonGrid
+  IonGrid,
+  IonModal,
+  IonButton,
+  IonButtons,
+  IonInput,
 } from '@ionic/react';
 import './Banking.css';
 import QRCode from "react-qr-code";
-import { BarcodeScanner } from '@awesome-cordova-plugins/barcode-scanner';
-import { useState } from 'react';
+import { BarcodeScanner, BarcodeScannerOptions } from '@awesome-cordova-plugins/barcode-scanner';
+import { useState, useRef } from 'react';
 import { add, share, logoUsd, download } from 'ionicons/icons';
+import { OverlayEventDetail } from '@ionic/core/components';
 import { useQuery } from "react-query";
 
 import { useAuth } from "../auth/authContext";
@@ -46,6 +51,21 @@ type BankingEntry = {
 type Bankings = ReadonlyArray<BankingEntry>
 
 const Banking: React.FC = () => {
+  const scannerOptions: BarcodeScannerOptions = {
+    preferFrontCamera: false,
+    showFlipCameraButton: false,
+    showTorchButton: true,
+    torchOn: false,
+    prompt: 'Bitte QR code in den scan bereich halten.',
+    orientation: 'portrait',
+    resultDisplayDuration: 500,
+    formats: 'QR_CODE'
+  }
+
+  const modal = useRef<HTMLIonModalElement>(null);
+  const input = useRef<HTMLIonInputElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
   // useAuth provides context and information about the user, is required.
   const { authInfo } = useAuth()!;
 
@@ -92,6 +112,18 @@ const Banking: React.FC = () => {
     });
   
     return formatter.format(balance);
+  }
+
+  const confirm = () => {
+    //modal.current?.dismiss(input.current?.value, 'confirm');
+    setIsOpen(false);
+  }
+
+  const onWillDismiss = (ev: CustomEvent<OverlayEventDetail>) => {
+    if (ev.detail.role === 'confirm') {
+      //setMessage(`Hello, ${ev.detail.data}!`);
+      console.log(`Hello, ${ev.detail.data}!`);
+    }
   }
 
   useIonViewWillEnter(() => {
@@ -153,7 +185,7 @@ const Banking: React.FC = () => {
               <IonIcon icon={share}/>
             </IonFabButton>
             <IonFabButton>
-              <IonIcon icon={download} onClick={() => {const data = BarcodeScanner.scan(); console.log(data)}}/>
+              <IonIcon icon={download} onClick={() => {/*const data = BarcodeScanner.scan(); console.log(data)*/ setIsOpen(true)}}/>
             </IonFabButton>
           </IonFabList>
         </IonFab>
@@ -169,6 +201,35 @@ const Banking: React.FC = () => {
           ></IonInfiniteScrollContent>
         </IonInfiniteScroll>
        
+        <IonModal ref={modal} isOpen={isOpen} onWillDismiss={(ev) => onWillDismiss(ev)}>
+          <IonHeader>
+            <IonToolbar>
+              <IonButtons slot="start">
+                <IonButton onClick={() => modal.current?.dismiss()}>Cancel</IonButton>
+              </IonButtons>
+              <IonTitle>Geld Senden</IonTitle>
+              <IonButtons slot="end">
+                <IonButton strong={true} onClick={() => confirm()}>
+                  Confirm
+                </IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding">
+            <IonButtons>
+              <IonButton onClick={() => {const data = BarcodeScanner.scan(scannerOptions); console.log(data)}}>Scan Code</IonButton>
+            </IonButtons>
+            <IonItem>
+              <IonLabel position="stacked">Name des Empfänger</IonLabel>
+              <IonInput ref={input} type="text" placeholder="Empfänger" />
+            </IonItem>
+            <IonItem>
+              <IonLabel position="stacked">Wieviel soll Überwiesen werden?</IonLabel>
+              <IonInput ref={input} type="text" placeholder="100 $" />
+            </IonItem>
+          </IonContent>
+        </IonModal>
+
       </IonContent>
     </IonPage>
   );
