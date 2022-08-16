@@ -57,7 +57,7 @@ const ViewMessageList: React.FC = () => {
     // react-query to synchronize with server state
     const { data: contacts, refetch: getAllContacts } = useQuery("query-contacts", async () => {
         const data: ContactsParams = (await apiClient.get("/contacts")).data;
-    return data
+        return data
     }, {
         enabled: !!authInfo.id, // only fetch if authenticated
         retry: 3,               // retry at max 3 times, not infinte
@@ -112,7 +112,6 @@ const ViewMessageList: React.FC = () => {
     //const sideRef = useRef();
     const sendRef = useRef<any>();
     const replyToAnimationRef = useRef();
-
 
     const queryClient = useQueryClient()
 

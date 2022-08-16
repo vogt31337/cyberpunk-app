@@ -206,28 +206,35 @@ chats = [
 	},
 ]
 
+banking_data = [
+            {
+                "id": 0,
+                "name": "Johnny Silverhand",
+                "reason": "Yo're a cheap ass",
+                "amount": 10000.12345,
+                "date": datetime.datetime.now()
+            },
+            {
+                "id": 0,
+                "name": "Johnny Silverhand",
+                "reason": "Again?",
+                "amount": 10000.12345,
+                "date": datetime.datetime.now()
+            }
+        ]
+
 @app.route('/')
 def index():
     return "Hello World!"
 
-@app.route('/api/banking')
+@app.route('/api/banking', methods=['GET', 'PUT'])
 def getBanking():
-    return jsonify([
-        {
-            "id": 0,
-            "name": "Johnny Silverhand",
-            "reason": "Yo're a cheap ass",
-            "amount": 10000.12345,
-            "date": datetime.datetime.now()
-        },
-        {
-            "id": 0,
-            "name": "Johnny Silverhand",
-            "reason": "Again?",
-            "amount": 10000.12345,
-            "date": datetime.datetime.now()
-        }
-    ])
+    if request.method == 'GET':
+        return jsonify(banking_data)
+    else:
+        print(request.data)
+        return jsonify(banking_data)
+
 
 @app.route('/api/login', methods=['POST'])
 def login():

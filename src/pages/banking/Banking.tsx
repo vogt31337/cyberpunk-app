@@ -28,14 +28,15 @@ import {
   IonButton,
   IonButtons,
   IonInput,
+  IonToast,
 } from '@ionic/react';
 import './Banking.css';
 import QRCode from "react-qr-code";
 import { BarcodeScanner, BarcodeScannerOptions } from '@awesome-cordova-plugins/barcode-scanner';
 import { useState, useRef } from 'react';
-import { add, share, logoUsd, download } from 'ionicons/icons';
+import { add, share, logoUsd, download, barcodeOutline } from 'ionicons/icons';
 import { OverlayEventDetail } from '@ionic/core/components';
-import { useQuery } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
 import { useAuth } from "../auth/authContext";
 import apiClient from "../../http-common";
@@ -62,8 +63,10 @@ const Banking: React.FC = () => {
     formats: 'QR_CODE'
   }
 
-  const modal = useRef<HTMLIonModalElement>(null);
-  const input = useRef<HTMLIonInputElement>(null);
+  //const modal = useRef<HTMLIonModalElement>(null);
+  const input_receiver = useRef<HTMLIonInputElement>(null);
+  const input_amount = useRef<HTMLIonInputElement>(null);
+  const input_message = useRef<HTMLIonInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   // useAuth provides context and information about the user, is required.
@@ -71,6 +74,29 @@ const Banking: React.FC = () => {
 
   // state holding is infinite scrolling is enabled
   const [isInfiniteDisabled, setInfiniteDisabled] = useState(false);
+  const [ toastMessage, setToastMessage ] = useState("");
+  const [ showToast, setShowToast ] = useState(false);
+
+    //  For displaying toast messages
+  const toaster = (message: string) => {
+      setToastMessage(message);
+      setShowToast(true);
+  }
+
+  const queryClient = useQueryClient()
+
+  const sendMoney = useMutation((entry: BankingEntry) => 
+      apiClient.put('/banking', JSON.stringify(entry)),
+      {
+          onSuccess: () => {
+            toaster("Transaktion erfolgreich!");
+            queryClient.invalidateQueries(["query-bank"]);
+          },
+          onError: (error) => {
+            toaster("An Error happened: " + error);
+          }
+      }
+  )
 
   // react-query to synchronize with server state
   const { isLoading, isError, data, error, refetch: getAllBanking } = useQuery("query-bank", async () => {
@@ -117,11 +143,38 @@ const Banking: React.FC = () => {
   const confirm = () => {
     //modal.current?.dismiss(input.current?.value, 'confirm');
     setIsOpen(false);
+    //console.log('confirmed');
+    const input = input_amount.current?.value;
+    var amount = 0.
+    if (input && typeof input === "string") {
+      amount = parseFloat(input as string)
+    }
+    
+    var name = ""
+    if (input_receiver.current?.value) {
+      name = input_receiver.current?.value.toString();
+    }
+
+    var reason = ""
+    if (input_message.current?.value) {
+      reason = input_message.current?.value?.toString();
+    }
+
+    const transaction: BankingEntry = {
+      id: -1,
+      name: name,
+      reason: reason,
+      amount: amount,
+      date: new Date(),
+    }
+    sendMoney.mutate(transaction);
   }
 
   const onWillDismiss = (ev: CustomEvent<OverlayEventDetail>) => {
+    setIsOpen(false);
     if (ev.detail.role === 'confirm') {
       //setMessage(`Hello, ${ev.detail.data}!`);
+      
       console.log(`Hello, ${ev.detail.data}!`);
     }
   }
@@ -185,7 +238,7 @@ const Banking: React.FC = () => {
               <IonIcon icon={share}/>
             </IonFabButton>
             <IonFabButton>
-              <IonIcon icon={download} onClick={() => {/*const data = BarcodeScanner.scan(); console.log(data)*/ setIsOpen(true)}}/>
+              <IonIcon icon={download} onClick={() => {setIsOpen(true)}}/>
             </IonFabButton>
           </IonFabList>
         </IonFab>
@@ -201,11 +254,12 @@ const Banking: React.FC = () => {
           ></IonInfiniteScrollContent>
         </IonInfiniteScroll>
        
-        <IonModal ref={modal} isOpen={isOpen} onWillDismiss={(ev) => onWillDismiss(ev)}>
+        <IonModal isOpen={isOpen} onWillDismiss={(ev) => onWillDismiss(ev)}>
           <IonHeader>
             <IonToolbar>
               <IonButtons slot="start">
-                <IonButton onClick={() => modal.current?.dismiss()}>Cancel</IonButton>
+                {/*<IonButton onClick={() => modal.current?.dismiss()}>Cancel</IonButton>*/}
+                <IonButton onClick={() => setIsOpen(false)}>Cancel</IonButton>
               </IonButtons>
               <IonTitle>Geld Senden</IonTitle>
               <IonButtons slot="end">
@@ -218,18 +272,24 @@ const Banking: React.FC = () => {
           <IonContent className="ion-padding">
             <IonButtons>
               <IonButton onClick={() => {const data = BarcodeScanner.scan(scannerOptions); console.log(data)}}>Scan Code</IonButton>
+              {/*<IonIcon icon={barcodeOutline} onClick={() => {const data = BarcodeScanner.scan(scannerOptions); console.log(data)}}/>*/}
             </IonButtons>
             <IonItem>
               <IonLabel position="stacked">Name des Empfänger</IonLabel>
-              <IonInput ref={input} type="text" placeholder="Empfänger" />
+              <IonInput ref={input_receiver} type="text" placeholder="Empfänger" />
+            </IonItem>
+            <IonItem>
+              <IonLabel position="stacked">Nachricht an den Empfänger?</IonLabel>
+              <IonInput ref={input_message} type="text" placeholder="Nachricht" />
             </IonItem>
             <IonItem>
               <IonLabel position="stacked">Wieviel soll Überwiesen werden?</IonLabel>
-              <IonInput ref={input} type="text" placeholder="100 $" />
+              <IonInput ref={input_amount} type="text" placeholder="100 $" />
             </IonItem>
           </IonContent>
         </IonModal>
 
+        <IonToast color="primary" isOpen={ showToast } onDidDismiss={ () => setShowToast(false) } message={ toastMessage } position="bottom" duration={3000} />
       </IonContent>
     </IonPage>
   );
