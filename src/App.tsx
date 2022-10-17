@@ -11,7 +11,7 @@ import {
   useIonToast,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { hardwareChip, logoUsd, fileTray, wallet, newspaper, chatbox } from 'ionicons/icons';
+import { hardwareChip, logoUsd, fileTray, wallet, newspaper, chatbox, home } from 'ionicons/icons';
 import Banking from './pages/banking/Banking';
 import Feed from './pages/feed/Feed';
 import Profile from './pages/profile/Profile';
@@ -44,6 +44,7 @@ import './theme/variables.css';
 
 // Auth
 import { useAuth } from "./pages/auth/authContext";
+import Home from './pages/home/Home';
 
 const App: React.FC = () => {
   const { authInfo, initialize } = useAuth()!;
@@ -87,7 +88,8 @@ const App: React.FC = () => {
           <IonReactRouter>
             <IonTabs>
               <IonRouterOutlet>
-                <Redirect from="/" to="/profile" exact />
+                <Redirect from="/" to="/home" exact />
+                <Route exact path="/home" component={Home} />
                 <Route exact path="/chats" component={Chats} />
                 <Route exact path="/banking" component={Banking} />
                 <Route exact path="/feed" component={Feed} />
@@ -96,7 +98,12 @@ const App: React.FC = () => {
                 {/*<Route path="/message/:id" component={ViewMessage} />*/}
                 <Route path="/view-chat/:contact_id" component={ ViewMessageList } />
               </IonRouterOutlet>
+
               <IonTabBar slot="bottom">
+                <IonTabButton tab="Home" href="/home">
+                  <IonIcon icon={home} />
+                  <IonLabel>Home</IonLabel>
+                </IonTabButton>
                 <IonTabButton tab="Banking" href="/banking">
                   <IonIcon icon={wallet} />
                   <IonLabel>Banking</IonLabel>
