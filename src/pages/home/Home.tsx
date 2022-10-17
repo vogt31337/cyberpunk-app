@@ -21,7 +21,8 @@ import { IonButton, IonButtons, IonItem, IonLabel, IonList } from "@ionic/react"
 import { useAuth } from "../auth/authContext";
 import React, { useRef } from 'react';
 import {  IonCard, IonCardHeader,  IonCardTitle, IonCardContent, IonIcon} from '@ionic/react';
-import { pin, wifi, wine, warning, walk, hardwareChip, newspaper, wallet, chatbox } from 'ionicons/icons';
+import { pin, wifi, wine, warning, walk, hardwareChip, newspaper, wallet, chatbox, contract, people } from 'ionicons/icons';
+import ContactModal from '../messages/ContactModal';
  
  
 const Home: React.FC<any> = ({ close: any }) => {
@@ -38,7 +39,7 @@ const Home: React.FC<any> = ({ close: any }) => {
             </IonHeader>
             
             <IonContent fullscreen>
-            
+        
                 <IonGrid>
                     <IonRow className="ion-text-center">
                         <IonCol size="6">
@@ -89,6 +90,19 @@ const Home: React.FC<any> = ({ close: any }) => {
                                 </IonCardHeader>
                                 <IonCardContent>
                                     <IonCardTitle>Banking</IonCardTitle>
+                                </IonCardContent>
+                            </IonCard>
+                        </IonCol>
+
+                        <IonCol size="6">
+                            <IonCard href="/contacts" className="ion-activated">
+                                <IonCardHeader>   
+                                    <IonButton expand="full" size='large'>
+                                        <IonIcon icon={people} slot="icon-only"/>
+                                    </IonButton>
+                                </IonCardHeader>
+                                <IonCardContent>
+                                    <IonCardTitle>Address Book</IonCardTitle>
                                 </IonCardContent>
                             </IonCard>
                         </IonCol>

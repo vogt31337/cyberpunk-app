@@ -41,10 +41,12 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import './general.scss'
 
 // Auth
 import { useAuth } from "./pages/auth/authContext";
 import Home from './pages/home/Home';
+import Contacts from './pages/contacts/Contacts';
 
 const App: React.FC = () => {
   const { authInfo, initialize } = useAuth()!;
@@ -93,6 +95,7 @@ const App: React.FC = () => {
                 <Route exact path="/chats" component={Chats} />
                 <Route exact path="/banking" component={Banking} />
                 <Route exact path="/feed" component={Feed} />
+                <Route exact path="/contacts" component={Contacts} />
                 <Route path="/profile" component={Profile} />
                 <Route path="/profile/:contact_id" component={Profile} />
                 {/*<Route path="/message/:id" component={ViewMessage} />*/}
